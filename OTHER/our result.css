@@ -1,0 +1,219 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f7f7;
+    color: #333;
+  }
+  
+  /* Header Section */
+  header {
+    text-align: center;
+    padding: 60px 0;
+    background-color: #ff6b6b;
+    color: white;
+    animation: fadeIn 1.5s ease-out;
+  }
+  
+  header h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+  }
+  
+  header p {
+    font-size: 1.2em;
+  }
+  
+  /* Results Overview Section */
+  .results-overview {
+    padding: 60px;
+    background-color: white;
+    text-align: center;
+  }
+  
+  .results-overview h2 {
+    font-size: 2.5em;
+    color: #ff6b6b;
+    margin-bottom: 20px;
+    animation: slideInLeft 1.5s ease;
+  }
+  
+  .results-overview p {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+  
+  .results-stats {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+  }
+  
+  .stat {
+    background-color: #ff6b6b;
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+    animation: fadeInUp 1.5s ease;
+  }
+  
+  .stat h3 {
+    font-size: 3em;
+    margin-bottom: 10px;
+  }
+  
+  .stat p {
+    font-size: 1.1em;
+  }
+  
+  .stat:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Top Performers Section */
+  .top-performers {
+    padding: 60px;
+    background-color: #f4f4f4;
+    text-align: center;
+  }
+  
+  .top-performers h2 {
+    font-size: 2.5em;
+    color: #ff6b6b;
+    margin-bottom: 30px;
+    animation: slideInRight 1.5s ease;
+  }
+  
+  .performers-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  }
+  
+  .performer-card {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 15px;
+    text-align: center;
+    width: 300px;
+    transition: transform 0.3s ease;
+  }
+  
+  .performer-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .performer-card h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .performer-card p {
+    font-size: 1.2em;
+    color: #666;
+  }
+  
+  .performer-card:hover {
+    transform: translateY(-10px);
+  }
+  
+  /* Success Stories Section */
+  .success-stories {
+    padding: 60px;
+    background-color: white;
+    text-align: center;
+  }
+  
+  .success-stories h2 {
+    font-size: 2.5em;
+    color: #ff6b6b;
+    margin-bottom: 30px;
+  }
+  
+  .story {
+    margin-bottom: 20px;
+    animation: fadeInUp 1.5s ease;
+  }
+  
+  .story p {
+    font-size: 1.2em;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+    color: #333;
+  }
+  
+  /* Footer Section */
+  footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #333;
+    color: white;
+    margin-top: 50px;
+  }
+  
+  footer p {
+    margin: 0;
+    font-size: 1em;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideInLeft {
+    0% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideInRight {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fadeInUp {
+    0% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  

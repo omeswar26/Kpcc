@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Admission - Coaching Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="S admission.css">
+</head>
+<body>
+
+    <section class="hero" id="hero">
+        <div class="container">
+            <h2>Unlock Your Child’s Potential</h2>
+            <p>Expert Coaching for Classes 4-10. Join our coaching center and give your child the advantage they deserve.</p>
+            <a href="#admission" class="btn hero-btn">Apply Now</a>
+        </div>
+    </section>
+
+    <section class="admission" id="admission">
+        <div class="container">
+            <h2>Student Admission Form</h2>
+            <form id="admissionForm" action="submit.php" method="POST" enctype="multipart/form-data">
+                <!-- Personal Details -->
+                <div class="form-section">
+                    <h3>Personal Details</h3>
+                    <label for="student-name">Full Name:</label>
+                    <input type="text" id="student-name" name="student_name" required>
+
+                    <label for="dob">Date of Birth:</label>
+                    <input type="date" id="dob" name="dob" required>
+
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+
+                    <label for="class">Class for Admission:</label>
+                    <select id="class" name="class" required>
+                        <option value="Class 4">Class 4</option>
+                        <option value="Class 5">Class 5</option>
+                        <option value="Class 6">Class 6</option>
+                        <option value="Class 7">Class 7</option>
+                        <option value="Class 8">Class 8</option>
+                        <option value="Class 9">Class 9</option>
+                        <option value="Class 10">Class 10</option>
+                    </select>
+                </div>
+
+                <!-- Parent/Guardian Details -->
+                <div class="form-section">
+                    <h3>Parent/Guardian Details</h3>
+                    <label for="parent-name">Parent/Guardian Name:</label>
+                    <input type="text" id="parent-name" name="parent_name" required>
+
+                    <label for="contact-number">Contact Number:</label>
+                    <input type="tel" id="contact-number" name="contact_number" required>
+
+                    <label for="email">Email Address:</label>
+                    <input type="email" id="email" name="email" required>
+
+                    <label for="address">Address:</label>
+                    <textarea id="address" name="address" rows="3" required></textarea>
+                </div>
+
+                <!-- Academic Performance -->
+                <div class="form-section">
+                    <h3>Previous Academic Performance</h3>
+                    <label for="last-exam">Last Exam Percentage:</label>
+                    <input type="text" id="last-exam" name="last_exam" required>
+
+                    <label for="school-name">School Name (Optional):</label>
+                    <input type="text" id="school-name" name="school_name">
+
+                    <label for="report-card">Upload Last Report Card (PDF):</label>
+                    <input type="file" id="report-card" name="report_card" accept="application/pdf">
+                </div>
+
+                <!-- Additional Information -->
+                <div class="form-section">
+                    <h3>Additional Information</h3>
+                    <label for="time-slot">Preferred Time Slot:</label>
+                    <select id="time-slot" name="time_slot" required>
+                        <option value="Morning">Morning</option>
+                        <option value="Afternoon">Afternoon</option>
+                        <option value="Evening">Evening</option>
+                    </select>
+
+                    <label for="notes">Special Notes/Requests:</label>
+                    <textarea id="notes" name="notes" rows="3"></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-section">
+                    <button type="submit" class="submit-btn">Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Coaching Center. All rights reserved.</p>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="#about">About Us</a>
+                <a href="#courses">Courses</a>
+                <a href="#admission">Admission</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Registration - Coaching Center</title>
+  <link rel="stylesheet" href="stud R.css">
+</head>
+<body>
+
+  <!-- Header Section -->
+  <header>
+    <h1>Welcome to Coaching Center</h1>
+    <p>Student Registration Portal</p>
+  </header>
+
+  <!-- Registration Form Section -->
+  <section class="registration-section">
+    <div class="registration-container">
+      <h2>Register as a Student</h2>
+      <form class="registration-form" action="/submit-registration" method="POST">
+        <div class="input-group">
+          <label for="full-name">Full Name</label>
+          <input type="text" id="full-name" name="full-name" required>
+        </div>
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="input-group">
+          <label for="phone">Phone Number</label>
+          <input type="text" id="phone" name="phone" required>
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <div class="input-group">
+          <label for="confirm-password">Confirm Password</label>
+          <input type="password" id="confirm-password" name="confirm-password" required>
+        </div>
+        <div class="actions">
+          <button type="submit" class="register-btn">Register</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer Section -->
+  <footer>
+    <p>&copy; 2024 Coaching Center. All Rights Reserved.</p>
+  </footer>
+
+  <!-- Animation JavaScript -->
+  <script src="script.js"></script>
+
+</body>
+</html>
