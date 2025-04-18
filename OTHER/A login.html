@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "onlinetestapp-ea2a0.firebaseapp.com",
+      projectId: "onlinetestapp-ea2a0",
+      storageBucket: "onlinetestapp-ea2a0.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("Login successful!");
+        window.location.href = "admin-loin.html"; // redirect to your admin panel
+      } catch (error) {
+        alert("Login failed: " + error.message);
+      }
+    });
+  </script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+  <div class="w-full max-w-sm p-6 bg-white rounded-xl shadow-md">
+    <h2 class="text-2xl font-bold mb-4 text-center">Admin Login</h2>
+    <input id="email" type="email" placeholder="Email" class="w-full mb-3 p-2 border rounded">
+    <input id="password" type="password" placeholder="Password" class="w-full mb-4 p-2 border rounded">
+    <button id="login-btn" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Login</button>
+  </div>
+</body>
+</html>
