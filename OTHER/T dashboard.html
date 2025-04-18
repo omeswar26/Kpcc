@@ -5,20 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Test Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white shadow-2xl rounded-2xl p-10 max-w-xl w-full">
-    <h1 class="text-2xl font-bold mb-6 text-center">Select a Test</h1>
-    <div id="test-buttons" class="space-y-4">
-      <!-- Test buttons will be added here -->
-    </div>
-    <button onclick="logout()" class="mt-6 w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl">Logout</button>
-  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-  <script>
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "onlinetestapp-ea2a0.firebaseapp.com",
@@ -27,11 +18,11 @@
       messagingSenderId: "YOUR_SENDER_ID",
       appId: "YOUR_APP_ID"
     };
-    
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
 
-    // Sample Test List - can also be fetched from Firestore later
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
     const testList = [
       { id: "bed2025", name: "B.Ed. 2025 Entrance Test" },
       { id: "class9_sci", name: "Class 9 Science Test" },
@@ -52,11 +43,22 @@
       window.location.href = "test.html";
     }
 
-    function logout() {
-      firebase.auth().signOut().then(() => {
+    window.logout = function () {
+      signOut(auth).then(() => {
         window.location.href = "index.html";
+      }).catch(error => {
+        console.error("Logout Error:", error);
       });
-    }
+    };
   </script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white shadow-2xl rounded-2xl p-10 max-w-xl w-full">
+    <h1 class="text-2xl font-bold mb-6 text-center">Select a Test</h1>
+    <div id="test-buttons" class="space-y-4">
+      <!-- Test buttons will be added here -->
+    </div>
+    <button onclick="logout()" class="mt-6 w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl">Logout</button>
+  </div>
 </body>
 </html>
