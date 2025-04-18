@@ -5,25 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Test Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAjbvRBKxvUq4fBw3JwufoCmxTqSbK-kXs",
-  authDomain: "onlinetestapp-ea2a0.firebaseapp.com",
-  projectId: "onlinetestapp-ea2a0",
-  storageBucket: "onlinetestapp-ea2a0.firebasestorage.app",
-  messagingSenderId: "939169687087",
-  appId: "1:939169687087:web:2fe2aa5fd541a6169408da",
-  measurementId: "G-EQSWTZB768"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjbvRBKxvUq4fBw3JwufoCmxTqSbK-kXs",
+      authDomain: "onlinetestapp-ea2a0.firebaseapp.com",
+      projectId: "onlinetestapp-ea2a0",
+      storageBucket: "onlinetestapp-ea2a0.appspot.com",
+      messagingSenderId: "939169687087",
+      appId: "1:939169687087:web:2fe2aa5fd541a6169408da",
+      measurementId: "G-EQSWTZB768"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+
+    const testPages = {
+      "Bed_001": "TESTS/bed tests.html",
+      "class9_sci": "class9-science.html",
+      "class10_math": "class10-math.html"
+    };
 
     const testList = [
       { id: "Bed_001", name: "B.Ed. 2025 Entrance Test" },
@@ -36,18 +40,16 @@ const firebaseConfig = {
       const btn = document.createElement("button");
       btn.className = "w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-xl";
       btn.innerText = test.name;
-      btn.onclick = () => startTest(test.id);
+      btn.onclick = () => {
+        localStorage.setItem("test_id", test.id);
+        window.location.href = testPages[test.id];
+      };
       testButtonsDiv.appendChild(btn);
     });
 
-    function startTest(testId) {
-      localStorage.setItem("test_id", testId);
-      window.location.href = "T test.html";
-    }
-
     window.logout = function () {
       signOut(auth).then(() => {
-        window.location.href = "take test.html";
+        window.location.href = "login.html";
       }).catch(error => {
         console.error("Logout Error:", error);
       });
@@ -58,7 +60,7 @@ const firebaseConfig = {
   <div class="bg-white shadow-2xl rounded-2xl p-10 max-w-xl w-full">
     <h1 class="text-2xl font-bold mb-6 text-center">Select a Test</h1>
     <div id="test-buttons" class="space-y-4">
-      <!-- Test buttons will be added here -->
+      <!-- Buttons will be added here -->
     </div>
     <button onclick="logout()" class="mt-6 w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl">Logout</button>
   </div>
