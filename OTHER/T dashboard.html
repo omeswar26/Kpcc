@@ -72,6 +72,21 @@
       text-align: right;
       margin-bottom: 10px;
     }
+    .question-box {
+      margin-top: 20px;
+    }
+    .question {
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .nav-buttons {
+      margin-top: 10px;
+    }
+    .nav-buttons button {
+      margin-right: 10px;
+    }
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
@@ -90,6 +105,13 @@
       <div class="button-group" id="testButtons"></div>
       <div id="questionSection" style="margin-top: 20px; display: none;">
         <h3 id="selectedTestName"></h3>
+        <div class="question-box">
+          <div class="question" id="questionText">Question will appear here.</div>
+          <div class="nav-buttons">
+            <button onclick="prevQuestion()">Previous</button>
+            <button onclick="nextQuestion()">Next</button>
+          </div>
+        </div>
         <div class="button-group">
           <button onclick="attemptQuestion()">Attempt</button>
           <button onclick="addForReview()">Add for Review</button>
@@ -117,11 +139,16 @@
     const totalQuestions = 50;
     let attempted = 0;
     let review = 0;
-    const testList = ["B.Ed. Test", "Class 9 Science", "Class 10 Math"];
+    let currentIndex = 0;
+    let currentTest = '';
 
+    const questions = Array.from({ length: totalQuestions }, (_, i) => `Q${i + 1}. Sample question text here.`);
+
+    const testList = ["B.Ed. Test", "Class 9 Science", "Class 10 Math"];
     const testButtons = document.getElementById("testButtons");
     const questionSection = document.getElementById("questionSection");
     const selectedTestName = document.getElementById("selectedTestName");
+    const questionText = document.getElementById("questionText");
 
     testList.forEach(test => {
       const btn = document.createElement("button");
@@ -129,6 +156,9 @@
       btn.onclick = () => {
         questionSection.style.display = 'block';
         selectedTestName.innerText = test;
+        currentTest = test;
+        currentIndex = 0;
+        updateQuestion();
       };
       testButtons.appendChild(btn);
     });
@@ -142,6 +172,24 @@
       document.getElementById("attemptedBar").style.width = `${(attempted / totalQuestions) * 100}%`;
       document.getElementById("reviewBar").style.width = `${(review / totalQuestions) * 100}%`;
       document.getElementById("notAttemptedBar").style.width = `${(notAttempted / totalQuestions) * 100}%`;
+    }
+
+    function updateQuestion() {
+      questionText.innerText = questions[currentIndex];
+    }
+
+    function nextQuestion() {
+      if (currentIndex < totalQuestions - 1) {
+        currentIndex++;
+        updateQuestion();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateQuestion();
+      }
     }
 
     function attemptQuestion() {
