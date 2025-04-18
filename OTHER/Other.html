@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Registration</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "onlinetestapp-ea2a0.firebaseapp.com",
+      projectId: "onlinetestapp-ea2a0",
+      storageBucket: "onlinetestapp-ea2a0.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    document.getElementById("register-btn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Save to admins collection
+        await setDoc(doc(db, "admins", user.uid), {
+          email: email,
+          role: "admin"
+        });
+
+        alert("Admin registered successfully!");
+      } catch (error) {
+        console.error("Error registering admin:", error);
+        alert(error.message);
+      }
+    });
+  </script>
+</head>
+<body style="font-family: sans-serif; max-width: 400px; margin: 50px auto;">
+  <h2>Admin Registration</h2>
+  <label>Email</label><br>
+  <input type="email" id="email" required style="width: 100%; margin-bottom: 10px;"><br>
+  <label>Password</label><br>
+  <input type="password" id="password" required style="width: 100%; margin-bottom: 20px;"><br>
+  <button id="register-btn" style="padding: 10px 20px;">Register Admin</button>
+</body>
+</html>
