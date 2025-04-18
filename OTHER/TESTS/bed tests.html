@@ -29,18 +29,6 @@
       <div>
         <h2 class="text-xl font-semibold mb-2 text-gray-800">📅 Year-wise</h2>
         <div class="grid grid-cols-3 gap-2">
-          <script>
-            document.addEventListener("DOMContentLoaded", () => {
-              const yearDiv = document.querySelector("#year-buttons");
-              for (let y = 2024; y >= 2014; y--) {
-                const btn = document.createElement("button");
-                btn.textContent = `BEd ${y}`;
-                btn.className = "bg-blue-500 text-white py-1 rounded hover:bg-blue-600";
-                btn.onclick = () => showTests(`Year ${y}`);
-                yearDiv.appendChild(btn);
-              }
-            });
-          </script>
           <div id="year-buttons" class="col-span-3 grid grid-cols-3 gap-2"></div>
         </div>
       </div>
@@ -48,52 +36,72 @@
       <!-- Subject Wise -->
       <div>
         <h2 class="text-xl font-semibold mb-2 text-gray-800">📘 Subject-wise</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-          <button onclick="showTests('English')" class="bg-purple-500 text-white py-1 rounded hover:bg-purple-600">English</button>
-          <button onclick="showTests('General Awareness')" class="bg-purple-500 text-white py-1 rounded hover:bg-purple-600">General Awareness</button>
-          <button onclick="showTests('Reasoning')" class="bg-purple-500 text-white py-1 rounded hover:bg-purple-600">Reasoning</button>
-          <button onclick="showTests('Teaching Aptitude')" class="bg-purple-500 text-white py-1 rounded hover:bg-purple-600">Teaching Aptitude</button>
-          <button onclick="showTests('Physical Science')" class="bg-purple-500 text-white py-1 rounded hover:bg-purple-600">Physical Science</button>
-          <button onclick="showTests('Bio Science')" class="bg-purple-500 text-white py-1 rounded hover:bg-purple-600">Bio Science</button>
-          <button onclick="showTests('Mathematics')" class="bg-purple-500 text-white py-1 rounded hover:bg-purple-600">Mathematics</button>
-        </div>
+        <div class="grid grid-cols-3 gap-2" id="subject-buttons"></div>
       </div>
     </div>
 
     <!-- Test List Section -->
     <div id="test-list" class="mt-8 hidden-menu">
       <h3 class="text-xl font-bold mb-3 text-gray-700" id="test-header"></h3>
-      <div class="grid grid-cols-2 gap-3">
-        <script>
-          function showTests(category) {
-            const testList = document.getElementById("test-list");
-            const testHeader = document.getElementById("test-header");
-            const grid = document.createElement("div");
-            grid.className = "grid grid-cols-2 gap-3 col-span-2";
-
-            testList.innerHTML = ""; // Clear old
-            testHeader.textContent = `🧪 Tests under: ${category}`;
-            testList.appendChild(testHeader);
-            for (let i = 1; i <= 5; i++) {
-              const btn = document.createElement("button");
-              btn.textContent = `Test ${i}`;
-              btn.className = "bg-indigo-500 text-white py-1 rounded hover:bg-indigo-600";
-              btn.onclick = () => alert(`Starting ${category} - Test ${i}`);
-              testList.appendChild(btn);
-            }
-            testList.classList.remove("hidden-menu");
-            testList.classList.add("menu-enter");
-            testList.scrollIntoView({ behavior: 'smooth' });
-          }
-
-          document.getElementById("start-btn").addEventListener("click", () => {
-            const menu = document.getElementById("main-menu");
-            menu.classList.remove("hidden-menu");
-            menu.classList.add("menu-enter");
-          });
-        </script>
-      </div>
+      <div class="grid grid-cols-2 gap-3" id="test-buttons"></div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const yearDiv = document.querySelector("#year-buttons");
+      for (let y = 2024; y >= 2014; y--) {
+        const btn = document.createElement("button");
+        btn.textContent = `BEd ${y}`;
+        btn.className = "bg-blue-500 text-white py-1 rounded hover:bg-blue-600";
+        btn.onclick = () => showTests(`BEd${y}`);
+        yearDiv.appendChild(btn);
+      }
+
+      const subjects = [
+        "English", "General Awareness", "Reasoning", "Teaching Aptitude",
+        "Physical Science", "Bio Science", "Mathematics"
+      ];
+
+      const subjectDiv = document.querySelector("#subject-buttons");
+      subjects.forEach(subject => {
+        const btn = document.createElement("button");
+        btn.textContent = subject;
+        btn.className = "bg-purple-500 text-white py-1 rounded hover:bg-purple-600";
+        btn.onclick = () => showTests(subject.replace(/\s+/g, ''));
+        subjectDiv.appendChild(btn);
+      });
+
+      document.getElementById("start-btn").addEventListener("click", () => {
+        const menu = document.getElementById("main-menu");
+        menu.classList.remove("hidden-menu");
+        menu.classList.add("menu-enter");
+      });
+    });
+
+    function showTests(category) {
+      const testList = document.getElementById("test-list");
+      const testHeader = document.getElementById("test-header");
+      const testButtons = document.getElementById("test-buttons");
+      testButtons.innerHTML = "";
+      testHeader.textContent = `🧪 Tests under: ${category}`;
+
+      for (let i = 1; i <= 5; i++) {
+        const testId = `${category}_Test${i}`;
+        const btn = document.createElement("button");
+        btn.textContent = `Test ${i}`;
+        btn.className = "bg-indigo-500 text-white py-1 rounded hover:bg-indigo-600";
+        btn.onclick = () => {
+          localStorage.setItem("test_id", testId);
+          window.location.href = "test.html";
+        };
+        testButtons.appendChild(btn);
+      }
+
+      testList.classList.remove("hidden-menu");
+      testList.classList.add("menu-enter");
+      testList.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
 </body>
 </html>
