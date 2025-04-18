@@ -146,11 +146,38 @@
             margin: 15px 0;
         }
 
-        @media print {
-            .button {
-                display: none;
-            }
-        }
+      @media print {
+    body {
+        margin: 0;
+        padding: 0;
+        background: white !important;
+    }
+
+    #reportContent {
+        margin: 0 auto;
+        padding: 20mm;
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
+
+    .button {
+        display: none;
+    }
+
+    .page-break {
+        page-break-after: always;
+    }
+
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+}
+
         @media print {
     .page-break {
         page-break-after: always;
