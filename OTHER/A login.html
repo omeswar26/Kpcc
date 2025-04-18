@@ -30,7 +30,7 @@ const firebaseConfig = {
       try {
         await signInWithEmailAndPassword(auth, email, password);
         alert("Login successful!");
-        window.location.href = "admin-loin.html"; // redirect to your admin panel
+        window.location.href = "admin-login.html"; // redirect to your admin panel
       } catch (error) {
         alert("Login failed: " + error.message);
       }
