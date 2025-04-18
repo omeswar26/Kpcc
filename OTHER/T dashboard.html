@@ -42,12 +42,12 @@ const firebaseConfig = {
 
     function startTest(testId) {
       localStorage.setItem("test_id", testId);
-      window.location.href = "test.html";
+      window.location.href = "T test.html";
     }
 
     window.logout = function () {
       signOut(auth).then(() => {
-        window.location.href = "index.html";
+        window.location.href = "take test.html";
       }).catch(error => {
         console.error("Logout Error:", error);
       });
