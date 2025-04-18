@@ -1,31 +1,5 @@
 /* General Reset */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  /* Header Section */
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background-color: #333;
-    color: white;
-  }
-  
-  header .logo img {
-    width: 100px;
-  }
-  
-  h1 {
-    font-size: 2em;
-  }
-
-  /* Scrolling Image Section */
-/* General Reset */
-* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -33,22 +7,130 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
+  background-color: #f9f9f9;
+  color: #333;
   padding: 20px;
 }
 
-/* Container to hold both sections */
-.content-container {
+/* Header */
+header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  padding: 20px;
+  background-color: #333;
+  color: white;
 }
 
-/* Image Slider Styles */
+header .logo img {
+  width: 100px;
+}
+
+h1 {
+  font-size: 2em;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  padding: 15px 20px;
+  flex-wrap: wrap;
+}
+
+.nav-left, .nav-right {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.nav-item {
+  text-decoration: none;
+  color: white;
+  font-size: 1.2em;
+  position: relative;
+  transition: color 0.3s ease-in-out;
+}
+
+.nav-item:hover {
+  color: #ffbf00;
+}
+
+.nav-item::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  left: 0;
+  bottom: -5px;
+  background-color: #ffbf00;
+  transition: width 0.3s ease-in-out;
+}
+
+.nav-item:hover::after {
+  width: 100%;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropbtn {
+  background-color: #ffbf00;
+  color: #333;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
+
+.dropbtn:hover {
+  background-color: #ffa500;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.3s;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Content Container */
+.content-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+/* Image Slider */
 .image-slider {
   position: relative;
-  width: 65%;
-  max-width: 700 px;
+  flex: 1 1 65%;
+  max-width: 700px;
   overflow: hidden;
   border-radius: 10px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
@@ -70,7 +152,6 @@ body {
   display: block;
 }
 
-/* Buttons for Previous and Next */
 .prev, .next {
   cursor: pointer;
   position: absolute;
@@ -97,231 +178,109 @@ body {
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* News & Events Box */
+/* News & Events */
 .news-events {
-  width: 30%;
+  flex: 1 1 30%;
+  background-color: #49bfee;
   padding: 20px;
-  background-color: rgb(73, 191, 238);
   border-radius: 10px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
 
 .news-events h2 {
-  margin-bottom: 15px;
   font-size: 1.8em;
+  margin-bottom: 15px;
   color: #e90909;
 }
 
 .news-events ul {
   list-style: none;
-  padding-left: 0;
 }
 
 .news-events ul li {
   margin-bottom: 10px;
   font-size: 1.2em;
-  color: #ffffff;
+  color: #fff;
   border-bottom: 1px solid #ddd;
   padding-bottom: 5px;
 }
 
-.news-events ul li:last-child {
-  border-bottom: none;
-}
-
-  /* Main Section (Notice Board and Institution Details) */
-  .main-section {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-  }
-  
-  .notice-board {
-    width: 30%;
-    background-color: #5fd8547a;
-    padding: 15px;
-  }
-  
-  .notice-board ul {
-    list-style: disc;
-    margin-left: 20px;
-  }
-  
-  .institution-details {
-    width: 65%;
-    padding: 15px;
-    background-color: #eef;
-  }
-  
-  /* Pass Out Students Section */
-  .students {
-    padding: 20px;
-    background-color: #f2f2f2;
-  }
-  
-  .students-grid {
-    display: flex;
-    gap: 20px;
-  }
-  
-  .student img {
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-  }
-  
-  /* Feedback Form */
-  .feedback {
-    padding: 20px;
-    background-color: #ddd;
-  }
-  
-  .feedback form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .feedback form label {
-    margin: 10px 0 5px;
-  }
-  
-  .feedback form input, .feedback form textarea {
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .feedback form button {
-    padding: 10px;
-    background-color: #444;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .feedback form button:hover {
-    background-color: #555;
-  }
-/* General Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Navbar Styles */
-.navbar {
+/* Notice & Institution Details */
+.main-section {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #333;
-  padding: 15px 20px;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 30px;
 }
 
-.nav-left, .nav-right {
-  list-style: none;
+.notice-board {
+  flex: 1 1 30%;
+  background-color: #5fd8547a;
+  padding: 15px;
+}
+
+.notice-board ul {
+  list-style: disc;
+  margin-left: 20px;
+}
+
+.institution-details {
+  flex: 1 1 65%;
+  background-color: #eef;
+  padding: 15px;
+}
+
+/* Students Section */
+.students {
+  padding: 20px;
+  background-color: #f2f2f2;
+}
+
+.students-grid {
   display: flex;
-  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.nav-left li, .nav-right li {
-  margin: 0 15px;
+.student img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
 }
 
-/* Animated Navigation Items */
-.nav-item {
-  text-decoration: none;
-  color: white;
-  font-size: 1.2em;
-  position: relative;
-  transition: color 0.3s ease-in-out;
-}
-
-.nav-item:hover {
-  color: #ffbf00;
-}
-
-/* Animated underline effect on hover */
-.nav-item::after {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 2px;
-  left: 0;
-  bottom: -5px;
-  background-color: #ffbf00;
-  transition: width 0.3s ease-in-out;
-}
-
-.nav-item:hover::after {
-  width: 100%;
-}
-
-/* Dropdown for Login and Register */
-.dropdown {
-  position: relative;
-}
-
-.dropbtn {
-  background-color: #ffbf00;
-  color: #333;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.3s ease;
-}
-
-.dropbtn:hover {
-  background-color: #ffa500;
-}
-
-/* Dropdown content hidden initially */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-}
-
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  transition: background-color 0.3s;
-}
-
-.dropdown-content a:hover {
+/* Feedback */
+.feedback {
+  padding: 20px;
   background-color: #ddd;
 }
 
-/* Show dropdown content on hover */
-.dropdown:hover .dropdown-content {
-  display: block;
+.feedback form {
+  display: flex;
+  flex-direction: column;
 }
 
-.dropdown:hover .dropbtn {
-  background-color: #ffa500;
+.feedback form label {
+  margin: 10px 0 5px;
 }
 
-/* General Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.feedback form input, .feedback form textarea {
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
-  color: #333;
-  padding: 50px;
+.feedback form button {
+  padding: 10px;
+  background-color: #444;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
-/* Social Media Section */
+.feedback form button:hover {
+  background-color: #555;
+}
+
+/* Social Media */
 .social-media-section {
   text-align: center;
   margin: 40px 0;
@@ -351,30 +310,19 @@ body {
   transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
-/* Individual Social Media Icon Styles */
-.social-icon.whatsapp {
-  background-color: #25d366;
-}
-
-.social-icon.x {
-  background-color: #1da1f2;
-}
-
-.social-icon.instagram {
-  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-}
-
-.social-icon.telegram {
-  background-color: #0088cc;
-}
-
-/* Hover Effects */
 .social-icon:hover {
   transform: translateY(-5px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Footer Section */
+.social-icon.whatsapp { background-color: #25d366; }
+.social-icon.x { background-color: #1da1f2; }
+.social-icon.instagram {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+.social-icon.telegram { background-color: #0088cc; }
+
+/* Footer */
 .footer {
   text-align: center;
   margin-top: 50px;
@@ -386,4 +334,29 @@ body {
 
 .footer p {
   margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .content-container, .main-section {
+    flex-direction: column;
+  }
+
+  .image-slider, .news-events, .notice-board, .institution-details {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .social-icons {
+    flex-wrap: wrap;
+  }
+
+  .students-grid {
+    justify-content: center;
+  }
 }
