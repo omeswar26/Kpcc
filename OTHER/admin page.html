@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Upload Questions</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
+    import { getFirestore, collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+
+   const firebaseConfig = {
+  apiKey: "AIzaSyAjbvRBKxvUq4fBw3JwufoCmxTqSbK-kXs",
+  authDomain: "onlinetestapp-ea2a0.firebaseapp.com",
+  projectId: "onlinetestapp-ea2a0",
+  storageBucket: "onlinetestapp-ea2a0.firebasestorage.app",
+  messagingSenderId: "939169687087",
+  appId: "1:939169687087:web:2fe2aa5fd541a6169408da",
+  measurementId: "G-EQSWTZB768"
+};
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById("upload-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const testId = document.getElementById("test-id").value;
+      const question = document.getElementById("question").value;
+      const options = [
+        document.getElementById("opt1").value,
+        document.getElementById("opt2").value,
+        document.getElementById("opt3").value,
+        document.getElementById("opt4").value,
+      ];
+      const correct = document.getElementById("correct").value;
+
+      const qid = Date.now().toString();
+
+      await setDoc(doc(db, `tests/${testId}/questions/${qid}`), {
+        question,
+        options
+      });
+
+      await setDoc(doc(db, `tests/${testId}`), {
+        correctAnswers: { [qid]: correct }
+      }, { merge: true });
+
+      alert("Question uploaded successfully!");
+      e.target.reset();
+    });
+  </script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="max-w-xl mx-auto bg-white shadow-xl rounded-xl p-6">
+    <h2 class="text-2xl font-bold mb-4 text-center">Upload Question (Admin)</h2>
+    <form id="upload-form" class="space-y-4">
+      <input id="test-id" type="text" placeholder="Test ID" class="w-full p-2 border rounded" required />
+      <textarea id="question" placeholder="Question text" class="w-full p-2 border rounded" required></textarea>
+      <input id="opt1" type="text" placeholder="Option 1" class="w-full p-2 border rounded" required />
+      <input id="opt2" type="text" placeholder="Option 2" class="w-full p-2 border rounded" required />
+      <input id="opt3" type="text" placeholder="Option 3" class="w-full p-2 border rounded" required />
+      <input id="opt4" type="text" placeholder="Option 4" class="w-full p-2 border rounded" required />
+      <input id="correct" type="text" placeholder="Correct Option (must match one above)" class="w-full p-2 border rounded" required />
+      <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Upload</button>
+    </form>
+  </div>
+</body>
+</html>
