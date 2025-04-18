@@ -1,26 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Take Test</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-</head>
-<body class="bg-gray-100 font-sans">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T Test</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
+    import { getFirestore, collection, getDocs, doc, setDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 
-  <div class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
-    <h1 class="text-2xl font-bold text-blue-600 mb-4" id="test-title">Loading Test...</h1>
-    <form id="test-form" class="space-y-6">
-      <!-- Questions will be added here -->
-    </form>
-
-    <button id="submitBtn" class="mt-6 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition hidden">Submit Test</button>
-  </div>
-
-  <script>
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "onlinetestapp-ea2a0.firebaseapp.com",
@@ -30,89 +18,112 @@
       appId: "YOUR_APP_ID"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const testId = urlParams.get("testId");
+    const testId = localStorage.getItem("test_id");
+    const userId = localStorage.getItem("user_id") || "demo_user";
+    const questionsContainer = document.getElementById("questions-container");
+    const timerDisplay = document.getElementById("timer");
+    const statusList = document.getElementById("status-list");
 
-    const testForm = document.getElementById("test-form");
-    const testTitle = document.getElementById("test-title");
-    const submitBtn = document.getElementById("submitBtn");
+    let userAnswers = {};
+    let totalQuestions = 0;
+    let timeLeft = 900; // 15 mins
 
-    let correctAnswers = {};
-    let currentUser = null;
+    function updateTimer() {
+      const min = Math.floor(timeLeft / 60);
+      const sec = timeLeft % 60;
+      timerDisplay.textContent = `Time Left: ${min}:${sec < 10 ? '0' : ''}${sec}`;
+      if (timeLeft <= 0) submitTest();
+      else timeLeft--;
+    }
 
-    auth.onAuthStateChanged(async (user) => {
-      if (!user) return (window.location.href = "login.html");
-      currentUser = user;
+    setInterval(updateTimer, 1000);
 
-      const testDoc = await db.collection("tests").doc(testId).get();
-      const testData = testDoc.data();
+    async function loadQuestions() {
+      const querySnapshot = await getDocs(collection(db, `tests/${testId}/questions`));
+      totalQuestions = querySnapshot.size;
+      let index = 0;
 
-      testTitle.textContent = testData.title;
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const qid = docSnap.id;
 
-      const questions = testData.questions;
+        // Sidebar status
+        const stat = document.createElement("button");
+        stat.textContent = index + 1;
+        stat.className = "w-10 h-10 border rounded-full hover:bg-blue-100";
+        stat.onclick = () => document.getElementById(`q${index}`).scrollIntoView({ behavior: 'smooth' });
+        stat.id = `status-${index}`;
+        statusList.appendChild(stat);
 
-      questions.forEach((q, index) => {
+        // Question UI
         const qDiv = document.createElement("div");
-        qDiv.className = "p-4 bg-gray-50 rounded shadow";
-
-        correctAnswers[`q${index}`] = q.correct;
-
-        let optionsHTML = "";
-        q.options.forEach((opt, i) => {
-          optionsHTML += `
-            <label class="block mt-2">
-              <input type="radio" name="q${index}" value="${opt}" class="mr-2" required/>
-              ${opt}
-            </label>`;
-        });
-
+        qDiv.id = `q${index}`;
+        qDiv.className = "mb-6 p-4 border rounded-xl bg-gray-50";
         qDiv.innerHTML = `
-          <h3 class="font-semibold">${index + 1}. ${q.question}</h3>
-          ${optionsHTML}
+          <p class="font-semibold mb-2">Q${index + 1}. ${data.question}</p>
+          <div class="space-y-2">
+            ${data.options.map((opt, i) => `
+              <label class="block">
+                <input type="radio" name="q${index}" value="${opt}" class="mr-2 option-radio" data-qid="${qid}" data-index="${index}">
+                ${opt}
+              </label>
+            `).join('')}
+          </div>
+          <button class="mt-2 px-3 py-1 text-sm bg-yellow-300 rounded review-btn" data-index="${index}">Add for Review</button>
         `;
-
-        testForm.appendChild(qDiv);
+        questionsContainer.appendChild(qDiv);
+        index++;
       });
+    }
 
-      submitBtn.classList.remove("hidden");
-    });
-
-    submitBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
-
-      let score = 0;
-      let total = Object.keys(correctAnswers).length;
-      let responses = {};
-
-      for (let key in correctAnswers) {
-        const selected = document.querySelector(`input[name="${key}"]:checked`);
-        if (selected) {
-          responses[key] = selected.value;
-          if (selected.value === correctAnswers[key]) {
-            score++;
-          }
-        } else {
-          responses[key] = "No Answer";
-        }
+    document.addEventListener("change", (e) => {
+      if (e.target.classList.contains("option-radio")) {
+        const qid = e.target.dataset.qid;
+        const index = e.target.dataset.index;
+        userAnswers[qid] = e.target.value;
+        document.getElementById(`status-${index}`).className = "w-10 h-10 rounded-full bg-green-300";
       }
-
-      await db.collection("results").add({
-        userId: currentUser.uid,
-        testId: testId,
-        responses: responses,
-        score: score,
-        total: total,
-        timestamp: new Date()
-      });
-
-      alert(`Test submitted! Your Score: ${score}/${total}`);
-      window.location.href = "dashboard.html";
     });
-  </script>
 
+    document.addEventListener("click", (e) => {
+      if (e.target.classList.contains("review-btn")) {
+        const index = e.target.dataset.index;
+        document.getElementById(`status-${index}`).className = "w-10 h-10 rounded-full bg-yellow-300";
+      }
+    });
+
+    async function submitTest() {
+      await setDoc(doc(db, `results/${userId}_${testId}`), {
+        answers: userAnswers,
+        submittedAt: new Date()
+      });
+      alert("Test submitted successfully!");
+      window.location.href = "dashboard.html";
+    }
+
+    document.getElementById("submit-btn").addEventListener("click", submitTest);
+    loadQuestions();
+  </script>
+</head>
+<body class="bg-white min-h-screen p-4">
+  <div class="max-w-5xl mx-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-3xl font-bold">T Test</h1>
+      <div id="timer" class="text-lg font-medium text-red-500">Time Left: 15:00</div>
+    </div>
+    <div class="flex gap-6">
+      <div class="w-3/4" id="questions-container"></div>
+      <div class="w-1/4">
+        <h2 class="text-xl font-semibold mb-2">Status</h2>
+        <div id="status-list" class="grid grid-cols-5 gap-2"></div>
+      </div>
+    </div>
+    <div class="text-center mt-10">
+      <button id="submit-btn" class="bg-green-500 text-white py-2 px-6 rounded-xl hover:bg-green-600">Submit Test</button>
+    </div>
+  </div>
 </body>
 </html>
