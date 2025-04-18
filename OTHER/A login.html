@@ -20,21 +20,30 @@ const firebaseConfig = {
   measurementId: "G-EQSWTZB768"
 };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    // Updated admin login code
+document.getElementById("login-btn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    document.getElementById("login-btn").addEventListener("click", async () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        alert("Login successful!");
-        window.location.href = "admin-login.html"; // redirect to your admin panel
-      } catch (error) {
-        alert("Login failed: " + error.message);
-      }
-    });
+    // Check if user is admin
+    const docRef = doc(db, "admins", user.uid); // Assuming you're storing admin IDs in Firestore
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      alert("Login successful!");
+      window.location.href = "admin.html"; // Redirect to admin panel
+    } else {
+      alert("You are not an admin.");
+      await signOut(auth); // Log out user if not admin
+    }
+  } catch (error) {
+    alert("Login failed: " + error.message);
+  }
+});
   </script>
 </head>
 <body class="flex items-center justify-center h-screen bg-gray-100">
