@@ -115,6 +115,24 @@
       alert("✅ Question uploaded successfully.");
       uploadForm.reset();
     });
+      const passageForm = document.getElementById("passage-form");
+passageForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const testId = document.getElementById("test-id").value.trim();
+  const passageText = document.getElementById("passage-text").value.trim();
+  const passageId = Date.now().toString();
+
+  if (!testId || !passageText) return alert("Please fill out all fields.");
+
+  await setDoc(doc(db, `tests/${testId}/passages/${passageId}`), {
+    text: passageText,
+    createdAt: serverTimestamp()
+  });
+
+  alert("✅ Passage uploaded successfully.");
+  passageForm.reset();
+});
 
     document.querySelectorAll('input[name="question-type"]').forEach((radio) => {
       radio.addEventListener("change", async (e) => {
