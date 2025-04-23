@@ -56,7 +56,7 @@
       <h3 class="text-xl font-semibold mb-4">🛠 Manage Questions</h3>
       <div class="flex gap-4 mb-4">
         <input id="view-test-id" type="text" placeholder="Test ID" class="p-2 border rounded w-1/3" />
-        <input id="view-question-id" type="text" placeholder="Question ID" class="p-2 border rounded w-1/3" />
+        <input id="view-question-id" type="text" placeholder="Question ID (optional)" class="p-2 border rounded w-1/3" />
         <button onclick="viewQuestion()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">View</button>
       </div>
       <div id="view-area" class="bg-gray-100 p-4 rounded hidden"></div>
@@ -88,34 +88,57 @@
     // ... [Keep original script from user, unchanged, including loadPassages(), loadLastEntries(), etc.]
 
     // View/Edit/Delete functionality
-    window.viewQuestion = async function () {
-      const testId = document.getElementById("view-test-id").value;
-      const qid = document.getElementById("view-question-id").value;
-      const viewArea = document.getElementById("view-area");
-      viewArea.innerHTML = "";
-      viewArea.classList.add("hidden");
+   window.viewQuestion = async function () {
+  const testId = document.getElementById("view-test-id").value.trim();
+  const qid = document.getElementById("view-question-id").value.trim();
+  const viewArea = document.getElementById("view-area");
 
-      if (!testId || !qid) return alert("Please enter both Test ID and Question ID.");
+  viewArea.innerHTML = "";
+  viewArea.classList.add("hidden");
 
-      const qSnap = await getDoc(doc(db, `tests/${testId}/questions/${qid}`));
-      if (!qSnap.exists()) return alert("❌ Question not found.");
+  if (!testId) return alert("Please enter the Test ID.");
 
-      const q = qSnap.data();
-      viewArea.classList.remove("hidden");
-      viewArea.innerHTML = `
-        <h4 class="font-bold mb-2">Question:</h4>
-        <p>${q.question}</p>
-        <ul class="list-disc list-inside text-sm text-gray-700 mb-2">
-          ${q.options.map(opt => `<li>${opt}</li>`).join('')}
-        </ul>
-        ${q.imageUrl ? `<img src="${q.imageUrl}" class="my-3 max-w-md">` : ""}
-        ${q.passageId ? `<p class='italic'>Linked Passage ID: ${q.passageId}</p>` : ""}
-        <div class="mt-4 flex gap-4">
-          <button onclick="editQuestion('${qid}')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</button>
-          <button onclick="deleteQuestion('${qid}')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
-        </div>
-      `;
-    };
+  if (qid) {
+    // View single question by ID
+    const qSnap = await getDoc(doc(db, `tests/${testId}/questions/${qid}`));
+    if (!qSnap.exists()) return alert("❌ Question not found.");
+
+    const q = qSnap.data();
+    viewArea.innerHTML = renderQuestionHTML(q, qid);
+    viewArea.classList.remove("hidden");
+  } else {
+    // View all questions in the test
+    const qCollection = collection(db, `tests/${testId}/questions`);
+    const qSnapshot = await getDocs(query(qCollection, orderBy("createdAt", "desc")));
+
+    if (qSnapshot.empty) return alert("⚠️ No questions found for this Test ID.");
+
+    qSnapshot.forEach(docSnap => {
+      const q = docSnap.data();
+      const qid = docSnap.id;
+      viewArea.innerHTML += renderQuestionHTML(q, qid);
+    });
+    viewArea.classList.remove("hidden");
+  }
+};
+
+function renderQuestionHTML(q, qid) {
+  return `
+    <div class="mb-6 p-4 border border-gray-300 rounded bg-white">
+      <h4 class="font-bold mb-2">QID: ${qid}</h4>
+      <p class="mb-2">${q.question}</p>
+      <ul class="list-disc list-inside text-sm text-gray-700 mb-2">
+        ${q.options.map(opt => `<li>${opt}</li>`).join('')}
+      </ul>
+      ${q.imageUrl ? `<img src="${q.imageUrl}" class="my-3 max-w-md">` : ""}
+      ${q.passageId ? `<p class='italic'>Linked Passage ID: ${q.passageId}</p>` : ""}
+      <div class="mt-3 flex gap-4">
+        <button onclick="editQuestion('${qid}')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</button>
+        <button onclick="deleteQuestion('${qid}')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+      </div>
+    </div>
+  `;
+}
   </script>
 
   <script>
