@@ -1,126 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>T Test</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
-    import { getFirestore, collection, getDocs, doc, setDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
+  import { getFirestore, collection, getDocs, doc, setDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAjbvRBKxvUq4fBw3JwufoCmxTqSbK-kXs",
-  authDomain: "onlinetestapp-ea2a0.firebaseapp.com",
-  projectId: "onlinetestapp-ea2a0",
-  storageBucket: "onlinetestapp-ea2a0.firebasestorage.app",
-  messagingSenderId: "939169687087",
-  appId: "1:939169687087:web:2fe2aa5fd541a6169408da",
-  measurementId: "G-EQSWTZB768"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyAjbvRBKxvUq4fBw3JwufoCmxTqSbK-kXs",
+    authDomain: "onlinetestapp-ea2a0.firebaseapp.com",
+    projectId: "onlinetestapp-ea2a0",
+    storageBucket: "onlinetestapp-ea2a0.firebasestorage.app",
+    messagingSenderId: "939169687087",
+    appId: "1:939169687087:web:2fe2aa5fd541a6169408da",
+    measurementId: "G-EQSWTZB768"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    const testId = localStorage.getItem("test_id");
-    const userId = localStorage.getItem("user_id") || "demo_user";
-    const questionsContainer = document.getElementById("questions-container");
-    const timerDisplay = document.getElementById("timer");
-    const statusList = document.getElementById("status-list");
+  const testId = localStorage.getItem("test_id");
+  const userId = localStorage.getItem("user_id") || "demo_user";
+  const questionsContainer = document.getElementById("questions-container");
+  const timerDisplay = document.getElementById("timer");
+  const statusList = document.getElementById("status-list");
 
-    let userAnswers = {};
-    let totalQuestions = 0;
-    let timeLeft = 900; // 15 mins
+  let questions = [];
+  let userAnswers = {};
+  let reviewStatus = {};
+  let currentQuestionIndex = 0;
+  let timeLeft = 900;
 
-    function updateTimer() {
-      const min = Math.floor(timeLeft / 60);
-      const sec = timeLeft % 60;
-      timerDisplay.textContent = `Time Left: ${min}:${sec < 10 ? '0' : ''}${sec}`;
-      if (timeLeft <= 0) submitTest();
-      else timeLeft--;
+  function updateTimer() {
+    const min = Math.floor(timeLeft / 60);
+    const sec = timeLeft % 60;
+    timerDisplay.textContent = `Time Left: ${min}:${sec < 10 ? '0' : ''}${sec}`;
+    if (timeLeft <= 0) submitTest();
+    else timeLeft--;
+  }
+
+  setInterval(updateTimer, 1000);
+
+  function updateStatusColor(index) {
+    const btn = document.getElementById(`status-${index}`);
+    if (reviewStatus[index]) {
+      btn.className = "w-10 h-10 rounded-full bg-yellow-300";
+    } else if (userAnswers[questions[index].id]) {
+      btn.className = "w-10 h-10 rounded-full bg-green-300";
+    } else {
+      btn.className = "w-10 h-10 rounded-full bg-gray-300";
     }
+  }
 
-    setInterval(updateTimer, 1000);
+  function renderStatusButtons() {
+    statusList.innerHTML = "";
+    questions.forEach((_, i) => {
+      const btn = document.createElement("button");
+      btn.textContent = i + 1;
+      btn.id = `status-${i}`;
+      btn.onclick = () => showQuestion(i);
+      statusList.appendChild(btn);
+      updateStatusColor(i);
+    });
+  }
 
-    async function loadQuestions() {
-      const querySnapshot = await getDocs(collection(db, `tests/${testId}/questions`));
-      totalQuestions = querySnapshot.size;
-      let index = 0;
+  function showQuestion(index) {
+    currentQuestionIndex = index;
+    const q = questions[index];
+    questionsContainer.innerHTML = `
+      <div class="p-4 border rounded-xl bg-gray-50">
+        <p class="font-semibold mb-2">Q${index + 1}. ${q.question}</p>
+        <div class="space-y-2">
+          ${q.options.map(opt => `
+            <label class="block">
+              <input type="radio" name="q" value="${opt}" class="mr-2" ${userAnswers[q.id] === opt ? "checked" : ""}>
+              ${opt}
+            </label>
+          `).join("")}
+        </div>
+        <div class="mt-4 flex gap-2">
+          <button id="prev-btn" class="bg-gray-400 text-white px-4 py-1 rounded">Previous</button>
+          <button id="review-btn" class="bg-yellow-400 px-4 py-1 rounded">Mark for Review</button>
+          <button id="next-btn" class="bg-blue-500 text-white px-4 py-1 rounded">Save & Next</button>
+        </div>
+      </div>
+    `;
 
-      querySnapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        const qid = docSnap.id;
-
-        // Sidebar status
-        const stat = document.createElement("button");
-        stat.textContent = index + 1;
-        stat.className = "w-10 h-10 border rounded-full hover:bg-blue-100";
-        stat.onclick = () => document.getElementById(`q${index}`).scrollIntoView({ behavior: 'smooth' });
-        stat.id = `status-${index}`;
-        statusList.appendChild(stat);
-
-        // Question UI
-        const qDiv = document.createElement("div");
-        qDiv.id = `q${index}`;
-        qDiv.className = "mb-6 p-4 border rounded-xl bg-gray-50";
-        qDiv.innerHTML = `
-          <p class="font-semibold mb-2">Q${index + 1}. ${data.question}</p>
-          <div class="space-y-2">
-            ${data.options.map((opt, i) => `
-              <label class="block">
-                <input type="radio" name="q${index}" value="${opt}" class="mr-2 option-radio" data-qid="${qid}" data-index="${index}">
-                ${opt}
-              </label>
-            `).join('')}
-          </div>
-          <button class="mt-2 px-3 py-1 text-sm bg-yellow-300 rounded review-btn" data-index="${index}">Add for Review</button>
-        `;
-        questionsContainer.appendChild(qDiv);
-        index++;
+    document.querySelectorAll("input[name='q']").forEach(input => {
+      input.addEventListener("change", (e) => {
+        userAnswers[q.id] = e.target.value;
+        reviewStatus[index] = false;
+        updateStatusColor(index);
       });
-    }
-
-    document.addEventListener("change", (e) => {
-      if (e.target.classList.contains("option-radio")) {
-        const qid = e.target.dataset.qid;
-        const index = e.target.dataset.index;
-        userAnswers[qid] = e.target.value;
-        document.getElementById(`status-${index}`).className = "w-10 h-10 rounded-full bg-green-300";
-      }
     });
 
-    document.addEventListener("click", (e) => {
-      if (e.target.classList.contains("review-btn")) {
-        const index = e.target.dataset.index;
-        document.getElementById(`status-${index}`).className = "w-10 h-10 rounded-full bg-yellow-300";
+    document.getElementById("review-btn").onclick = () => {
+      reviewStatus[index] = true;
+      updateStatusColor(index);
+    };
+
+    document.getElementById("next-btn").onclick = () => {
+      if (currentQuestionIndex < questions.length - 1) {
+        showQuestion(currentQuestionIndex + 1);
+      } else {
+        showSummary();
       }
-    });
+    };
 
-    async function submitTest() {
-      await setDoc(doc(db, `results/${userId}_${testId}`), {
-        answers: userAnswers,
-        submittedAt: new Date()
+    document.getElementById("prev-btn").onclick = () => {
+      if (currentQuestionIndex > 0) {
+        showQuestion(currentQuestionIndex - 1);
+      }
+    };
+  }
+
+  function showSummary() {
+    questionsContainer.innerHTML = `
+      <div class="p-4 border rounded-xl bg-gray-50">
+        <h2 class="text-xl font-bold mb-4">Review Before Submit</h2>
+        <ul class="space-y-2">
+          ${questions.map((q, i) => {
+            const answer = userAnswers[q.id];
+            const status = reviewStatus[i]
+              ? "🟨 Marked for Review"
+              : answer
+                ? "🟩 Answered"
+                : "⬜ Unattempted";
+            return `<li>Q${i + 1}: ${status}</li>`;
+          }).join("")}
+        </ul>
+        <div class="mt-4 flex gap-4">
+          <button onclick="location.reload()" class="bg-gray-500 text-white px-4 py-1 rounded">Go Back</button>
+          <button id="final-submit" class="bg-green-600 text-white px-4 py-2 rounded">Submit Final</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("final-submit").onclick = submitTest;
+  }
+
+  async function loadQuestions() {
+    const querySnapshot = await getDocs(collection(db, `tests/${testId}/questions`));
+    querySnapshot.forEach(docSnap => {
+      questions.push({
+        id: docSnap.id,
+        ...docSnap.data()
       });
-      alert("Test submitted successfully!");
-      window.location.href = "result.html";
-    }
+    });
+    renderStatusButtons();
+    showQuestion(0);
+  }
 
-    document.getElementById("submit-btn").addEventListener("click", submitTest);
-    loadQuestions();
-  </script>
+  async function submitTest() {
+    await setDoc(doc(db, `results/${userId}_${testId}`), {
+      answers: userAnswers,
+      submittedAt: new Date()
+    });
+    alert("Test submitted successfully!");
+    window.location.href = "result.html";
+  }
+
+  document.getElementById("submit-btn").addEventListener("click", showSummary);
+
+  loadQuestions();
+</script>
+
 </head>
 <body class="bg-white min-h-screen p-4">
   <div class="max-w-5xl mx-auto">
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-3xl font-bold">T Test</h1>
-      <div id="timer" class="text-lg font-medium text-red-500">Time Left: 15:00</div>
+      <div id="timer" class="text-lg font-bold text-white bg-red-500 px-4 py-1 rounded-full shadow-md">Time Left: 15:00</div>
     </div>
     <div class="flex gap-6">
       <div class="w-3/4" id="questions-container"></div>
       <div class="w-1/4">
         <h2 class="text-xl font-semibold mb-2">Status</h2>
-        <div id="status-list" class="grid grid-cols-5 gap-2"></div>
+        <div id="status-list" class="grid grid-cols-5 gap-2 overflow-y-auto max-h-64 pr-1"></div>
       </div>
     </div>
     <div class="text-center mt-10">
@@ -129,3 +188,4 @@ const firebaseConfig = {
   </div>
 </body>
 </html>
+
