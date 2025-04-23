@@ -29,15 +29,16 @@
           <input id="question-id" type="hidden" />
           <input id="test-id-question" type="text" placeholder="Test ID (e.g. bed2025)" class="p-2 border rounded" required />
 
-          <div class="space-x-4">
-            <input type="radio" id="passage" name="question-type" value="passage" class="mr-2" required />
-            <label for="passage">Passage</label>
-            <input type="radio" id="math" name="question-type" value="math" class="mr-2" />
-            <label for="math">Math</label>
-            <input type="radio" id="diagram" name="question-type" value="diagram" class="mr-2" />
-            <label for="diagram">Diagram</label>
-          </div>
-
+         <div class="space-x-4">
+  <input type="radio" id="general" name="question-type" value="general" class="mr-2" required checked />
+  <label for="general">General</label>
+  <input type="radio" id="passage" name="question-type" value="passage" class="mr-2" />
+  <label for="passage">Passage</label>
+  <input type="radio" id="math" name="question-type" value="math" class="mr-2" />
+  <label for="math">Math</label>
+  <input type="radio" id="diagram" name="question-type" value="diagram" class="mr-2" />
+  <label for="diagram">Diagram</label>
+</div>
           <select id="passage-select" class="p-2 border rounded hidden"></select>
           <textarea id="question-text" placeholder="Question Text" class="p-2 border rounded" required></textarea>
           <input id="opt1" type="text" placeholder="Option 1" class="p-2 border rounded" required />
