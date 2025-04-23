@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Test Results</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
     import { getFirestore, doc, getDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
+      apiKey: "AIzaSyAjbvRBKxvUq4fBw3JwufoCmxTqSbK-kXs",
       authDomain: "onlinetestapp-ea2a0.firebaseapp.com",
       projectId: "onlinetestapp-ea2a0",
       storageBucket: "onlinetestapp-ea2a0.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      messagingSenderId: "939169687087",
+      appId: "1:939169687087:web:2fe2aa5fd541a6169408da"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -26,78 +26,94 @@
     const userId = localStorage.getItem("user_id") || "demo_user";
 
     async function loadResults() {
-      const testDocRef = doc(db, "tests", testId);
-      const testSnap = await getDoc(testDocRef);
+      const testRef = doc(db, "tests", testId);
+      const testSnap = await getDoc(testRef);
+      if (!testSnap.exists()) return alert("Test not found.");
 
-      if (testSnap.exists()) {
-        const testData = testSnap.data();
-        const correctAnswers = testData.correctAnswers || {};
-        const resultsDocRef = doc(db, `results/${userId}_${testId}`);
-        const resultsSnap = await getDoc(resultsDocRef);
-        const questionSnapshot = await getDocs(collection(db, `tests/${testId}/questions`));
+      const testData = testSnap.data();
+      const correctAnswers = testData.correctAnswers || {};
 
-        if (resultsSnap.exists()) {
-          const resultsData = resultsSnap.data();
-          const userAnswers = resultsData.answers;
+      const resultsRef = doc(db, `results/${userId}_${testId}`);
+      const resultsSnap = await getDoc(resultsRef);
+      if (!resultsSnap.exists()) return alert("No results found.");
 
-          let score = 0;
-          let resultsHtml = '';
-          let pdfContent = 'Test Results\n';
+      const userAnswers = resultsSnap.data().answers || {};
 
-          let questionMap = {};
-          questionSnapshot.forEach(qDoc => {
-            questionMap[qDoc.id] = qDoc.data();
-          });
+      const questionSnap = await getDocs(collection(db, `tests/${testId}/questions`));
+      const questions = [];
+      questionSnap.forEach(q => {
+        questions.push({ id: q.id, ...q.data() });
+      });
 
-          Object.keys(correctAnswers).forEach((qid, i) => {
-            const correctAnswer = correctAnswers[qid];
-            const userAnswer = userAnswers[qid] || "Not Answered";
-            const isCorrect = userAnswer === correctAnswer;
-            const question = questionMap[qid]?.question || qid;
-            const options = questionMap[qid]?.options || [];
+      // Sort by Q.No. if exists, else by ID
+      questions.sort((a, b) => {
+        const aNum = parseInt(a.qno || a.id);
+        const bNum = parseInt(b.qno || b.id);
+        return aNum - bNum;
+      });
 
-            if (isCorrect) score++;
+      let correct = 0, incorrect = 0, notAnswered = 0;
+      let html = '';
+      let pdfContent = 'Test Results\n\n';
 
-            resultsHtml += `
-              <div class="mb-4 p-4 border rounded-xl bg-gray-50">
-                <p class="font-semibold">Q${i + 1}: ${question}</p>
-                <ul class="mb-2">
-                  ${options.map(opt => `<li class="ml-4">${opt}</li>`).join('')}
-                </ul>
-                <p><strong>Your Answer:</strong> ${userAnswer}</p>
-                <p><strong>Correct Answer:</strong> ${correctAnswer}</p>
-                <p class="${isCorrect ? 'text-green-500' : 'text-red-500'}">
-                  ${isCorrect ? 'Correct' : 'Incorrect'}
-                </p>
-              </div>
-            `;
+      questions.forEach((q, i) => {
+        const qid = q.id;
+        const correctAnswer = correctAnswers[qid];
+        const userAnswer = userAnswers[qid] || "Not Answered";
+        const isCorrect = userAnswer === correctAnswer;
+        const isNotAnswered = userAnswer === "Not Answered";
 
-            pdfContent += `Q${i + 1}: ${question}\nOptions: ${options.join(', ')}\nYour Answer: ${userAnswer}\nCorrect: ${correctAnswer}\n\n`;
-          });
+        if (isCorrect) correct++;
+        else if (isNotAnswered) notAnswered++;
+        else incorrect++;
 
-          const totalQuestions = Object.keys(correctAnswers).length;
-          const percentage = ((score / totalQuestions) * 100).toFixed(2);
+        html += `
+          <div class="mb-4 p-4 border rounded-xl bg-gray-50">
+            <p class="font-semibold">Q${i + 1}: ${q.question}</p>
+            <ul class="mb-2 list-disc ml-6">
+              ${q.options.map(o => `<li>${o}</li>`).join("")}
+            </ul>
+            <p><strong>Your Answer:</strong> ${userAnswer}</p>
+            <p><strong>Correct Answer:</strong> ${correctAnswer}</p>
+            <p class="${isCorrect ? 'text-green-600' : isNotAnswered ? 'text-yellow-500' : 'text-red-500'}">
+              ${isCorrect ? 'Correct ✅' : isNotAnswered ? 'Not Answered ⚠️' : 'Incorrect ❌'}
+            </p>
+          </div>
+        `;
 
-          document.getElementById('results').innerHTML = `
-            <h1 class="text-3xl font-bold">Your Test Results</h1>
-            <p class="mb-6 text-xl">Score: ${score} / ${totalQuestions} (${percentage}%)</p>
-            <button id="download-pdf" class="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Download PDF</button>
-            ${resultsHtml}
-          `;
+        pdfContent += `Q${i + 1}: ${q.question}\nOptions: ${q.options.join(', ')}\nYour Answer: ${userAnswer}\nCorrect Answer: ${correctAnswer}\n${isCorrect ? '[Correct]' : isNotAnswered ? '[Not Answered]' : '[Incorrect]'}\n\n`;
+      });
 
-          document.getElementById("download-pdf").addEventListener("click", () => {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text(pdfContent, 10, 10);
-            doc.save("test_results.pdf");
-          });
+      const total = questions.length;
+      const finalScore = (correct * 1 - incorrect * 0.5).toFixed(2);
+      const percentage = ((finalScore / total) * 100).toFixed(2);
 
-        } else {
-          alert("No results found for this test.");
+      document.getElementById('results').innerHTML = `
+        <h1 class="text-3xl font-bold mb-4">Your Test Results</h1>
+        <p class="text-xl mb-2">Total Questions: ${total}</p>
+        <p class="mb-2">✅ Correct: ${correct} × 1 = ${correct}</p>
+        <p class="mb-2 text-red-500">❌ Incorrect: ${incorrect} × -0.5 = -${(incorrect * 0.5).toFixed(1)}</p>
+        <p class="mb-2 text-yellow-500">⚠️ Not Answered: ${notAnswered} × 0 = 0</p>
+        <p class="mb-4 text-xl font-semibold">🎯 Final Score: ${finalScore} / ${total} (${percentage}%)</p>
+        <button id="download-pdf" class="mb-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Download PDF</button>
+        ${html}
+      `;
+
+      document.getElementById("download-pdf").addEventListener("click", () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const lines = pdfContent.split('\n');
+        let y = 10;
+        for (let line of lines) {
+          if (y > 270) {
+            doc.addPage();
+            y = 10;
+          }
+          doc.text(line, 10, y);
+          y += 8;
         }
-      } else {
-        alert("Test data not found.");
-      }
+        doc.save("test_results.pdf");
+      });
     }
 
     window.onload = loadResults;
