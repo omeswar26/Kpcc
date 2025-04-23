@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel - Upload Questions</title>
+  <title>Admin Panel - Manage Questions</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
@@ -19,7 +19,6 @@
     const db = getFirestore(app);
 
     const form = document.getElementById("upload-form");
-    const passageForm = document.getElementById("passage-form");
     const lastEntries = document.getElementById("last-entries");
     const passageSelect = document.getElementById("passage-select");
 
@@ -57,20 +56,6 @@
       alert("✅ Question uploaded successfully!");
       form.reset();
       loadLastEntries(testId);
-    });
-
-    passageForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const testId = document.getElementById("test-id").value;
-      const passageText = document.getElementById("passage-text").value;
-
-      const passageId = Date.now().toString();
-      await setDoc(doc(db, `tests/${testId}/passages`, passageId), { text: passageText });
-
-      alert("✅ Passage uploaded successfully!");
-      passageForm.reset();
-      loadPassages(testId);
     });
 
     async function loadLastEntries(testId) {
@@ -149,17 +134,7 @@
 </head>
 <body class="bg-gradient-to-r from-indigo-100 to-blue-50 min-h-screen p-6">
   <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-6">
-    <h2 class="text-3xl font-bold text-center text-indigo-700 mb-6">Admin Panel - Upload Questions</h2>
-
-    <!-- Passage Upload Section -->
-    <div class="mb-8">
-      <h3 class="text-xl font-semibold mb-4">📜 Upload a Passage</h3>
-      <form id="passage-form" class="grid gap-4">
-        <input id="test-id" type="text" placeholder="Test ID (e.g. bed2025)" class="p-2 border rounded" required />
-        <textarea id="passage-text" placeholder="Passage Text" class="p-2 border rounded" required></textarea>
-        <button type="submit" class="bg-green-600 text-white py-2 rounded hover:bg-green-700 transition">Upload Passage</button>
-      </form>
-    </div>
+    <h2 class="text-3xl font-bold text-center text-indigo-700 mb-6">Admin Panel - Manage Questions</h2>
 
     <!-- Question Upload Section -->
     <form id="upload-form" class="grid gap-4">
@@ -222,10 +197,11 @@
       });
     });
 
-    // Load passages when page loads
+    // Load questions and passages when page loads
     window.onload = function () {
       const testId = document.getElementById("test-id").value;
       loadPassages(testId);
+      loadLastEntries(testId);
     };
   </script>
 </body>
