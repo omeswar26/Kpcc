@@ -102,15 +102,15 @@
       const questionType = document.querySelector("input[name='question-type']:checked").value;
       const passageId = document.getElementById("passage-select").value || "";
 
-      await setDoc(doc(db, tests/${testId}/questions/${qid}), {
-        question,
-        options,
-        correctOption,
-        imageUrl,
-        questionType,
-        passageId,
-        createdAt: serverTimestamp()
-      });
+      await setDoc(doc(db, `tests/${testId}/questions/${qid}`), {
+  question,
+  options,
+  correctOption,
+  imageUrl,
+  questionType,
+  passageId,
+  createdAt: serverTimestamp()
+});
 
       alert("✅ Question uploaded successfully.");
       uploadForm.reset();
@@ -125,10 +125,10 @@ passageForm.addEventListener("submit", async (e) => {
 
   if (!testId || !passageText) return alert("Please fill out all fields.");
 
-  await setDoc(doc(db, tests/${testId}/passages/${passageId}), {
-    text: passageText,
-    createdAt: serverTimestamp()
-  });
+  await setDoc(doc(db, `tests/${testId}/passages/${passageId}`), {
+  text: passageText,
+  createdAt: serverTimestamp()
+});
 
   alert("✅ Passage uploaded successfully.");
   passageForm.reset();
@@ -213,21 +213,21 @@ passageForm.addEventListener("submit", async (e) => {
     };
 
     function renderQuestionHTML(q, qid) {
-      return 
-        <div class="mb-6 p-4 border border-gray-300 rounded bg-white">
-          <h4 class="font-bold mb-2">QID: ${qid}</h4>
-          <p class="mb-2">${q.question}</p>
-          <ul class="list-disc list-inside text-sm text-gray-700 mb-2">
-            ${q.options.map(opt => <li>${opt}</li>).join('')}
-          </ul>
-          ${q.imageUrl ? <img src="${q.imageUrl}" class="my-3 max-w-md"> : ""}
-          ${q.passageId ? <p class='italic'>Linked Passage ID: ${q.passageId}</p> : ""}
-          <div class="mt-3 flex gap-4">
-            <button onclick="editQuestion('${qid}')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</button>
-            <button onclick="deleteQuestion('${qid}')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
-          </div>
-        </div>
-      ;
+     return `
+  <div class="mb-6 p-4 border border-gray-300 rounded bg-white">
+    <h4 class="font-bold mb-2">QID: ${qid}</h4>
+    <p class="mb-2">${q.question}</p>
+    <ul class="list-disc list-inside text-sm text-gray-700 mb-2">
+      ${q.options.map(opt => `<li>${opt}</li>`).join('')}
+    </ul>
+    ${q.imageUrl ? `<img src="${q.imageUrl}" class="my-3 max-w-md">` : ""}
+    ${q.passageId ? `<p class='italic'>Linked Passage ID: ${q.passageId}</p>` : ""}
+    <div class="mt-3 flex gap-4">
+      <button onclick="editQuestion('${qid}')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</button>
+      <button onclick="deleteQuestion('${qid}')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+`;
     }
   </script>
 </body>
