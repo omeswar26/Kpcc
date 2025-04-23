@@ -27,7 +27,7 @@
         <h3 class="text-xl font-semibold mb-4">➕ Upload a Question</h3>
         <form id="upload-form" class="grid gap-4">
           <input id="question-id" type="hidden" />
-          <input id="test-id" type="text" placeholder="Test ID (e.g. bed2025)" class="p-2 border rounded" required />
+          <input id="test-id-question" type="text" placeholder="Test ID (e.g. bed2025)" class="p-2 border rounded" required />
 
           <div class="space-x-4">
             <input type="radio" id="passage" name="question-type" value="passage" class="mr-2" required />
@@ -72,89 +72,144 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import {
-      getFirestore, collection, doc, setDoc, getDocs, getDoc, deleteDoc, query, orderBy
+      getFirestore, collection, doc, setDoc, getDocs, getDoc, deleteDoc, query, orderBy, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAjbvRBKxvUq4fBw3JwufoCmxTqSbK-kXs",
-  authDomain: "onlinetestapp-ea2a0.firebaseapp.com",
-  projectId: "onlinetestapp-ea2a0",
-  storageBucket: "onlinetestapp-ea2a0.firebasestorage.app",
-  messagingSenderId: "939169687087",
-  appId: "1:939169687087:web:2fe2aa5fd541a6169408da",
-  measurementId: "G-EQSWTZB768"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjbvRBKxvUq4fBw3JwufoCmxTqSbK-kXs",
+      authDomain: "onlinetestapp-ea2a0.firebaseapp.com",
+      projectId: "onlinetestapp-ea2a0",
+      storageBucket: "onlinetestapp-ea2a0.appspot.com",
+      messagingSenderId: "939169687087",
+      appId: "1:939169687087:web:2fe2aa5fd541a6169408da",
+      measurementId: "G-EQSWTZB768"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Reuse upload script
-    // ... [Keep original script from user, unchanged, including loadPassages(), loadLastEntries(), etc.]
+    const uploadForm = document.getElementById("upload-form");
+    uploadForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    // View/Edit/Delete functionality
-   window.viewQuestion = async function () {
-  const testId = document.getElementById("view-test-id").value.trim();
-  const qid = document.getElementById("view-question-id").value.trim();
-  const viewArea = document.getElementById("view-area");
+      const testId = document.getElementById("test-id-question").value.trim();
+      const qid = document.getElementById("question-id").value.trim() || Date.now().toString();
+      const question = document.getElementById("question-text").value.trim();
+      const options = ["opt1", "opt2", "opt3", "opt4"].map(id => document.getElementById(id).value.trim());
+      const correctOption = document.getElementById("correct-option").value.trim();
+      const imageUrl = document.getElementById("image-url").value.trim();
+      const questionType = document.querySelector("input[name='question-type']:checked").value;
+      const passageId = document.getElementById("passage-select").value || "";
 
-  viewArea.innerHTML = "";
-  viewArea.classList.add("hidden");
+      await setDoc(doc(db, `tests/${testId}/questions/${qid}`), {
+        question,
+        options,
+        correctOption,
+        imageUrl,
+        questionType,
+        passageId,
+        createdAt: serverTimestamp()
+      });
 
-  if (!testId) return alert("Please enter the Test ID.");
-
-  if (qid) {
-    // View single question by ID
-    const qSnap = await getDoc(doc(db, `tests/${testId}/questions/${qid}`));
-    if (!qSnap.exists()) return alert("❌ Question not found.");
-
-    const q = qSnap.data();
-    viewArea.innerHTML = renderQuestionHTML(q, qid);
-    viewArea.classList.remove("hidden");
-  } else {
-    // View all questions in the test
-    const qCollection = collection(db, `tests/${testId}/questions`);
-    const qSnapshot = await getDocs(query(qCollection, orderBy("createdAt", "desc")));
-
-    if (qSnapshot.empty) return alert("⚠️ No questions found for this Test ID.");
-
-    qSnapshot.forEach(docSnap => {
-      const q = docSnap.data();
-      const qid = docSnap.id;
-      viewArea.innerHTML += renderQuestionHTML(q, qid);
+      alert("✅ Question uploaded successfully.");
+      uploadForm.reset();
     });
-    viewArea.classList.remove("hidden");
-  }
-};
 
-function renderQuestionHTML(q, qid) {
-  return `
-    <div class="mb-6 p-4 border border-gray-300 rounded bg-white">
-      <h4 class="font-bold mb-2">QID: ${qid}</h4>
-      <p class="mb-2">${q.question}</p>
-      <ul class="list-disc list-inside text-sm text-gray-700 mb-2">
-        ${q.options.map(opt => `<li>${opt}</li>`).join('')}
-      </ul>
-      ${q.imageUrl ? `<img src="${q.imageUrl}" class="my-3 max-w-md">` : ""}
-      ${q.passageId ? `<p class='italic'>Linked Passage ID: ${q.passageId}</p>` : ""}
-      <div class="mt-3 flex gap-4">
-        <button onclick="editQuestion('${qid}')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</button>
-        <button onclick="deleteQuestion('${qid}')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
-      </div>
-    </div>
-  `;
-}
-  </script>
-
-  <script>
-    const radios = document.querySelectorAll('input[name="question-type"]');
-    radios.forEach((radio) => {
-      radio.addEventListener('change', (e) => {
+    document.querySelectorAll('input[name="question-type"]').forEach((radio) => {
+      radio.addEventListener("change", async (e) => {
         const value = e.target.value;
-        document.getElementById('passage-select').classList.toggle('hidden', value !== 'passage');
-        document.getElementById('image-url').classList.toggle('hidden', value !== 'diagram');
+        document.getElementById("passage-select").classList.toggle("hidden", value !== "passage");
+        document.getElementById("image-url").classList.toggle("hidden", value !== "diagram");
+
+        if (value === "passage") {
+          const testId = document.getElementById("test-id-question").value.trim();
+          if (!testId) return alert("Enter Test ID first");
+          const passageSelect = document.getElementById("passage-select");
+          passageSelect.innerHTML = "";
+          const snap = await getDocs(collection(db, `tests/${testId}/passages`));
+          snap.forEach(doc => {
+            const opt = document.createElement("option");
+            opt.value = doc.id;
+            opt.text = doc.data().text.slice(0, 50) + "...";
+            passageSelect.appendChild(opt);
+          });
+        }
       });
     });
+
+    window.viewQuestion = async function () {
+      const testId = document.getElementById("view-test-id").value.trim();
+      const qid = document.getElementById("view-question-id").value.trim();
+      const viewArea = document.getElementById("view-area");
+      viewArea.innerHTML = "";
+      viewArea.classList.add("hidden");
+
+      if (!testId) return alert("Please enter the Test ID.");
+
+      if (qid) {
+        const qSnap = await getDoc(doc(db, `tests/${testId}/questions/${qid}`));
+        if (!qSnap.exists()) return alert("❌ Question not found.");
+
+        const q = qSnap.data();
+        viewArea.innerHTML = renderQuestionHTML(q, qid);
+        viewArea.classList.remove("hidden");
+      } else {
+        const qCollection = collection(db, `tests/${testId}/questions`);
+        const qSnapshot = await getDocs(query(qCollection, orderBy("createdAt", "desc")));
+
+        if (qSnapshot.empty) return alert("⚠️ No questions found for this Test ID.");
+
+        qSnapshot.forEach(docSnap => {
+          const q = docSnap.data();
+          const qid = docSnap.id;
+          viewArea.innerHTML += renderQuestionHTML(q, qid);
+        });
+        viewArea.classList.remove("hidden");
+      }
+    };
+
+    window.editQuestion = async function (qid) {
+      const testId = document.getElementById("view-test-id").value.trim();
+      const qSnap = await getDoc(doc(db, `tests/${testId}/questions/${qid}`));
+      if (!qSnap.exists()) return alert("❌ Question not found.");
+      const q = qSnap.data();
+
+      document.getElementById("test-id-question").value = testId;
+      document.getElementById("question-text").value = q.question;
+      document.getElementById("opt1").value = q.options[0];
+      document.getElementById("opt2").value = q.options[1];
+      document.getElementById("opt3").value = q.options[2];
+      document.getElementById("opt4").value = q.options[3];
+      document.getElementById("correct-option").value = q.correctOption;
+      document.getElementById("image-url").value = q.imageUrl || "";
+      document.getElementById("question-id").value = qid;
+    };
+
+    window.deleteQuestion = async function (qid) {
+      const testId = document.getElementById("view-test-id").value.trim();
+      if (!confirm("Are you sure you want to delete this question?")) return;
+      await deleteDoc(doc(db, `tests/${testId}/questions/${qid}`));
+      alert("✅ Question deleted.");
+      viewQuestion();
+    };
+
+    function renderQuestionHTML(q, qid) {
+      return `
+        <div class="mb-6 p-4 border border-gray-300 rounded bg-white">
+          <h4 class="font-bold mb-2">QID: ${qid}</h4>
+          <p class="mb-2">${q.question}</p>
+          <ul class="list-disc list-inside text-sm text-gray-700 mb-2">
+            ${q.options.map(opt => `<li>${opt}</li>`).join('')}
+          </ul>
+          ${q.imageUrl ? `<img src="${q.imageUrl}" class="my-3 max-w-md">` : ""}
+          ${q.passageId ? `<p class='italic'>Linked Passage ID: ${q.passageId}</p>` : ""}
+          <div class="mt-3 flex gap-4">
+            <button onclick="editQuestion('${qid}')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</button>
+            <button onclick="deleteQuestion('${qid}')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+          </div>
+        </div>
+      `;
+    }
   </script>
 </body>
 </html>
